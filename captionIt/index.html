@@ -62,15 +62,16 @@ function addMessage(message) {
 }
 // update buddy list
 function updateBuddyList(list) {
+    alert("update list");
     var div = $('#buddyList');
     var inner = $('#buddyList > .inner');
     var needScroll = false;
     var add=function() {
         $.each(list, function(key, value) { 
-            inner.html(inner.html() + key + "<br/>");
+            inner.html(inner.html()+ "buddy");
         });
-        
     }
+    add();
 }
 
 $(function(){

@@ -25,14 +25,15 @@ io.sockets.on('connection', function(socket){
         // delete old nickname from client list if it exists
         clients[data] = 1;
         socket.emit('serverMessage', 'nickname set to ' + data);
-
+        for (var key in clients)
+            console.log("key: "+key+" value: "+clients[key]);
         if (socket.nickname === undefined){
             socket.nickname = data;
             socket.broadcast.emit('companyChange',{"list":clients, "message":socket.nickname+" arrives!"});
         }
         else{
             delete clients[socket.nickname];
-            socket.broadcast.emit('companyChange',{"list":clients, "message":socket.nickname+" is henceforth "+data});
+            socket.broadcast.emit('companyChange',{"list":clients, "message":socket.nickname+" is hereafter "+data});
             socket.nickname = data;
         }
     });
@@ -41,6 +42,8 @@ io.sockets.on('connection', function(socket){
         // remove client from the list
         if (socket.nickname === undefined)
             return;
+        var nick = socket.nickname
+        delete clients.nick
         socket.broadcast.emit('companyChange',{"list":clients, "message":socket.nickname+" departs!"});
     });
 });
