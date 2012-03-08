@@ -43,7 +43,7 @@ io.sockets.on('connection', function(socket){
         if (socket.nickname === undefined)
             return;
         var nick = socket.nickname
-        delete clients.nick
+        delete clients[nick];
         socket.broadcast.emit('companyChange',{"list":clients, "message":socket.nickname+" departs!"});
     });
 });

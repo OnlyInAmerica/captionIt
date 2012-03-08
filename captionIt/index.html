@@ -62,13 +62,13 @@ function addMessage(message) {
 }
 // update buddy list
 function updateBuddyList(list) {
-    alert("update list");
-    var div = $('#buddyList');
-    var inner = $('#buddyList > .inner');
+    var div = $('#buddylist');
+    var inner = $('#buddylist > .inner');
     var needScroll = false;
     var add=function() {
+        inner.html('');
         $.each(list, function(key, value) { 
-            inner.html(inner.html()+ "buddy");
+            inner.html(inner.html()+ key+"<br/>");
         });
     }
     add();
@@ -124,8 +124,8 @@ $(function(){
         var action = "";
         if (nick != ""){
             addMessage("> "+data["message"]);
-            updateBuddyList(data["list"]);
         }
+        updateBuddyList(data["list"]);
     });
     socket.on('disconnect', function(){
         addMessage("disconnected");
