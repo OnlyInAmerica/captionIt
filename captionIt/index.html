@@ -29,13 +29,16 @@
                 <div class="inner"></div>
             </div>
             <div id="buddylist">
+                <div class="inner"></div>
             </div>
         </div>
         <div style="margin-top:5px;">
             <input type="text" id="message" />
         </div>
-            <p><b>/nick name</b> set username to "name"<br/>
-            <b>/clear </b> clear chat history</p>
+            <p> 
+                <b>/clear </b> clear chat history<br/>
+                <b>/nick name</b> change alias
+            </p>
     </div>
 </body>
 
@@ -55,6 +58,18 @@ function addMessage(message) {
         div.scrollTop(div[0].scrollHeight);
     } else {
         add();
+    }
+}
+// update buddy list
+function updateBuddyList(list) {
+    var div = $('#buddyList');
+    var inner = $('#buddyList > .inner');
+    var needScroll = false;
+    var add=function() {
+        $.each(list, function(key, value) { 
+            inner.html(inner.html() + key + "<br/>");
+        });
+        
     }
 }
 
@@ -92,7 +107,7 @@ $(function(){
     var socket = io.connect('http://127.0.0.1:8000');
    // addMessage("connecting...");
     socket.on('connect', function() {
-        addMessage("enter an alias...");
+        addMessage("> enter an alias...");
     });
     socket.on('message', function(data) {
         if (nick != ""){
@@ -101,17 +116,14 @@ $(function(){
     });
     socket.on('serverMessage', function(data) {
         if (nick != ""){
-        addMessage('server: '+ data);
+        addMessage('> '+ data);
         }
     });
     socket.on('companyChange', function(data) {
         var action = "";
         if (nick != ""){
-        if (data["action"] == "in")
-            action = " joined";
-        else if(data["action"] == "out")
-            action = " left";
-        addMessage("server: "+data["nick"]+action);
+            addMessage("> "+data["message"]);
+            updateBuddyList(data["list"]);
         }
     });
     socket.on('disconnect', function(){
