@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>SocketIO rules</title>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+    <script src="http://localhost:8000/socket.io/socket.io.js"></script>
+    <style type="text/css">
+        body, div, p {
+            font:11pt Arial, sans-serif;
+        }
+        #messages {
+            overflow:auto;width:400px;height:150px;border:solid 1px gray;margin:auto;padding:0;text-align:left;display:inline-block;
+        }
+        #buddylist {
+            overflow:auto;width:100px;height:150px;border:solid 1px gray;margin:auto;padding:0;text-align:left;display:inline-block;
+        }
+        #message {
+            width:507px;border:solid 1px gray;margin:auto;padding:0;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="text-align:center">
+        <div>
+        	<div id="messages">
+                <div class="inner"></div>
+            </div>
+            <div id="buddylist">
+            </div>
+        </div>
+        <div style="margin-top:5px;">
+            <input type="text" id="message" />
+        </div>
+            <p><b>/nick name</b> set username to "name"<br/>
+            <b>/clear </b> clear chat history</p>
+    </div>
+</body>
+
+<script type="text/javascript"><!--
+
+// add message and scroll down if it needs for chat-like scrolling
+function addMessage(message) {
+    var div = $('#messages');
+    var inner = $('#messages > .inner');
+    var needScroll = false;
+    var add=function() {
+        inner.html(inner.html() + message + "<br/>");
+    }
+	if (Math.abs(div[0].scrollHeight - div.scrollTop() - div.outerHeight()) < 5 ||
+    	Math.abs(inner.offset().top) + div.height() + div.offset().top >= inner.outerHeight() ) {
+        add();
+        div.scrollTop(div[0].scrollHeight);
+    } else {
+        add();
+    }
+}
+
+$(function(){
+    $('#message').keypress(function(e) {
+        var characterCode = (window.event) ? event.keyCode : e.keyCode;
+        if (characterCode == 13 && $('#message').val() != "") {
+            var text = $('#message').val();
+            //on start set user nickname
+            if (nick == ""){
+                text = "/nick "+text.substr(0,20);
+            }
+            //search text for operations
+            if (text.search("/clear") == 0){
+                $('#messages > .inner').html("");
+                $('#message').val('');
+                return false;
+            }
+            if (text.search("/nick ") == 0){
+                nick = text.split("/nick ")[1];
+                socket.emit('setNick',nick);
+                $('#message').val('');
+                return false;
+            }
+            addMessage('you: '+ text);
+            socket.emit('message',text);
+            $('#message').val('');
+            return false;
+        } else {
+            return true;
+        }
+    });
+    $('#message').focus();
+    var nick = "";
+    var socket = io.connect('http://127.0.0.1:8000');
+   // addMessage("connecting...");
+    socket.on('connect', function() {
+        addMessage("enter an alias...");
+    });
+    socket.on('message', function(data) {
+        if (nick != ""){
+        addMessage(data["nick"]+ ": "+ data["data"]);
+        }
+    });
+    socket.on('serverMessage', function(data) {
+        if (nick != ""){
+        addMessage('server: '+ data);
+        }
+    });
+    socket.on('companyChange', function(data) {
+        var action = "";
+        if (nick != ""){
+        if (data["action"] == "in")
+            action = " joined";
+        else if(data["action"] == "out")
+            action = " left";
+        addMessage("server: "+data["nick"]+action);
+        }
+    });
+    socket.on('disconnect', function(){
+        addMessage("disconnected");
+    });
+});
+//--></script>
+
+</html>
