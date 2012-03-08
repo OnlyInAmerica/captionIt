@@ -12,9 +12,7 @@ var clients = {};
 
 // socket.io
 io.sockets.on('connection', function(socket){
-    //clients.push(socket);
-    //nickNames.socket = "dude" + clients.length;
-    //socket.broadcast.emit('companyChange',{"nick":nickNames.socket, "action":"in"});
+    socket.emit('companyChange', {"list":clients, "message":"welcome"});
 
     socket.on('message', function(data) {
         // broadcast the message to all clients
@@ -25,8 +23,6 @@ io.sockets.on('connection', function(socket){
         // delete old nickname from client list if it exists
         clients[data] = 1;
         socket.emit('serverMessage', 'nickname set to ' + data);
-        for (var key in clients)
-            console.log("key: "+key+" value: "+clients[key]);
         if (socket.nickname === undefined){
             socket.nickname = data;
             socket.broadcast.emit('companyChange',{"list":clients, "message":socket.nickname+" arrives!"});

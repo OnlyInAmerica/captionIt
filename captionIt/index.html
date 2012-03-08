@@ -11,10 +11,10 @@
             font:11pt Arial, sans-serif;
         }
         #messages {
-            overflow:auto;width:400px;height:150px;border:solid 1px gray;margin:auto;padding:0;text-align:left;display:inline-block;
+            vertical-align:top;overflow:auto;width:400px;height:150px;border:solid 1px gray;margin:auto;padding:0;text-align:left;display:inline-block;
         }
         #buddylist {
-            overflow:auto;width:100px;height:150px;border:solid 1px gray;margin:auto;padding:0;text-align:left;display:inline-block;
+            vertical-align:top;overflow:auto;width:100px;height:150px;border:solid 1px gray;margin:auto;padding:0;text-align:left;display:inline-block;
         }
         #message {
             width:507px;border:solid 1px gray;margin:auto;padding:0;
@@ -23,13 +23,13 @@
 </head>
 
 <body>
-    <div style="text-align:center">
+    <div style="margin-left:auto;margin-right:auto; text-align:center;width:510px;height:180px;">
         <div>
         	<div id="messages">
                 <div class="inner"></div>
             </div>
             <div id="buddylist">
-                <div class="inner"></div>
+                <div class="innerbud"></div>
             </div>
         </div>
         <div style="margin-top:5px;">
@@ -63,13 +63,20 @@ function addMessage(message) {
 // update buddy list
 function updateBuddyList(list) {
     var div = $('#buddylist');
-    var inner = $('#buddylist > .inner');
+    var inner = $('#buddylist > .innerbud');
     var needScroll = false;
     var add=function() {
         inner.html('');
         $.each(list, function(key, value) { 
             inner.html(inner.html()+ key+"<br/>");
         });
+    }
+    if (Math.abs(div[0].scrollHeight - div.scrollTop() - div.outerHeight()) < 5 ||
+        Math.abs(inner.offset().top) + div.height() + div.offset().top >= inner.outerHeight() ) {
+        add();
+        div.scrollTop(div[0].scrollHeight);
+    } else {
+        add();
     }
     add();
 }
@@ -90,7 +97,11 @@ $(function(){
                 return false;
             }
             if (text.search("/nick ") == 0){
+                if (nick != "")
+                    delete clients[nick]
                 nick = text.split("/nick ")[1];
+                clients[nick] = 1;
+                updateBuddyList(clients);
                 socket.emit('setNick',nick);
                 $('#message').val('');
                 return false;
@@ -104,6 +115,7 @@ $(function(){
         }
     });
     $('#message').focus();
+    var clients = {};
     var nick = "";
     var socket = io.connect('http://127.0.0.1:8000');
    // addMessage("connecting...");
@@ -125,7 +137,8 @@ $(function(){
         if (nick != ""){
             addMessage("> "+data["message"]);
         }
-        updateBuddyList(data["list"]);
+        clients = data["list"];
+        updateBuddyList(clients);
     });
     socket.on('disconnect', function(){
         addMessage("disconnected");
