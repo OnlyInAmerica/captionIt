@@ -6,25 +6,27 @@
 	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
     <script src="http://localhost:8000/socket.io/socket.io.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Asap' rel='stylesheet' type='text/css'>
     <style type="text/css">
         body, div, p {
-            font:11pt Arial, sans-serif;
+            font-family: 'Asap', sans-serif;
         }
         #messages {
-            vertical-align:top;overflow:auto;width:400px;height:150px;border:solid 1px gray;margin:auto;padding:0;text-align:left;display:inline-block;
+            vertical-align:top;overflow:auto;width:500px;height:150px;border-top:solid 1px gray;margin:auto;padding:0;text-align:left;display:inline-block;
         }
         #buddylist {
-            vertical-align:top;overflow:auto;width:100px;height:150px;border:solid 1px gray;margin:auto;padding:0;text-align:left;display:inline-block;
+            vertical-align:top;overflow:auto;width:150px;height:150px;border-top:solid 1px gray;margin:auto;margin-left:5px;text-align:left;display:inline-block;
         }
         #message {
-            width:507px;border:solid 1px gray;margin:auto;padding:0;
+            width:657px;border:solid 1px gray;margin:auto;padding:0;
         }
     </style>
 </head>
 
 <body>
-    <div style="margin-left:auto;margin-right:auto; text-align:center;width:510px;height:180px;">
+    <div style="margin-left:auto;margin-right:auto; text-align:center;width:660px;height:180px;">
         <div>
+            <h1>janky chat</h1>
         	<div id="messages">
                 <div class="inner"></div>
             </div>
