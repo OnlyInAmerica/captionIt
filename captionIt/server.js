@@ -1,11 +1,27 @@
-var app = require('express').createServer(), io = require('socket.io').listen(app);
+var fs = require('fs');
+var privateKey = fs.readFileSync('./privatekey.pem').toString();
+var certificate = fs.readFileSync('./certificate.pem').toString();
 
-app.listen(8000);
+var express = require('express');
+var sio = require('socket.io');
+
+
+//var privateKey = fs.readFileSync('/usr/local/nginx/server.key').toString();
+//var certificate = fs.readFileSync('/usr/local/nginx/server.crt').toString();
+//app.listen(8000);
+var app = express.createServer({key:privateKey, cert:certificate});
 
 // load client page content
 app.get('/', function (req, res){
     res.sendfile(__dirname+ '/index.html');
 });
+
+app.listen(8000, function () {
+  var addr = app.address();
+  console.log('   app listening on https://' + addr.address + ':' + addr.port);
+});
+
+var io = sio.listen(app,{key:privateKey,cert:certificate});
 
 // connected clients mapped to nicknames
 var clients = {};
