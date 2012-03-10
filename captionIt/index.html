@@ -5,8 +5,20 @@
 	<title>let's get janky</title>
 	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
-    <script src="https://localhost:8000/socket.io/socket.io.js"></script>
+
+    <!-- Change script src to your server's address -->
+    <script src="https://192.168.1.33:8000/socket.io/socket.io.js"></script>
+
+    <!-- esapi4js core -->
+    <script type="text/javascript" language="JavaScript" src="https://192.168.1.33:8000/esapi4js/esapi.js"></script>
+    <!-- esapi4js dependencies -->
+    <script type="text/javascript" language="JavaScript" src="https://192.168.1.33:8000/esapi4js/lib/log4js.js"></script>
+    <!-- esapi4js i18n resources -->
+    <script type="text/javascript" language="JavaScript" src="https://192.168.1.33:8000/esapi4js/resources/i18n/ESAPI_Standard_en_US.properties.js"></script>
+    <!-- esapi4js configuration -->
+    <script type="text/javascript" language="JavaScript" src="https://192.168.1.33:8000/esapi4js/resources/Base.esapi.properties.js"></script>
     <link href='http://fonts.googleapis.com/css?family=Asap' rel='stylesheet' type='text/css'>
+
     <style type="text/css">
         body, div, p {
             font-family: 'Asap', sans-serif;
@@ -45,6 +57,15 @@
 </body>
 
 <script type="text/javascript"><!--
+Base.esapi.properties.logging['ApplicationLogger'] = {
+        Level: org.owasp.esapi.Logger.ALL,
+        Appenders: [ new Log4js.ConsoleAppender() ],
+        LogUrl: true,
+        LogApplicationName: true,
+        EncodingRequired: true
+    };
+Base.esapi.properties.application.Name = "Janky Chat v.1";
+org.owasp.esapi.ESAPI.initialize();
 
 // add message and scroll down if it needs for chat-like scrolling
 function addMessage(message) {
@@ -87,7 +108,8 @@ $(function(){
     $('#message').keypress(function(e) {
         var characterCode = (window.event) ? event.keyCode : e.keyCode;
         if (characterCode == 13 && $('#message').val() != "") {
-            var text = $('#message').val();
+            //Ensure no funny stuff leaves the users text field
+            var text = $ESAPI.encoder().encodeForHTML( $('#message').val() );
             //on start set user nickname
             if (nick == ""){
                 text = "/nick "+text.substr(0,20);
@@ -119,27 +141,40 @@ $(function(){
     $('#message').focus();
     var clients = {};
     var nick = "";
-    var socket = io.connect('https://localhost:8000', {secure: true});
+    // change this address to match your server 
+    var socket = io.connect('https://192.168.1.33:8000', {secure: true});
    // addMessage("connecting...");
     socket.on('connect', function() {
         addMessage("> enter an alias...");
     });
     socket.on('message', function(data) {
+
         if (nick != ""){
-        addMessage(data["nick"]+ ": "+ data["data"]);
+            //Ensure no funny stuff is accepted as a message
+            var clean_data = $ESAPI.encoder().encodeForHTML( data );
+            addMessage(data["nick"]+ ": "+ data["data"]);
         }
     });
     socket.on('serverMessage', function(data) {
+        
         if (nick != ""){
-        addMessage('> '+ data);
+            //Ensure no funny stuff is accepted as a server message
+            var clean_data = $ESAPI.encoder().encodeForHTML( data );
+            addMessage('> '+ clean_data);
         }
     });
     socket.on('companyChange', function(data) {
+
+        //Ensure no funny stuff is accepted as a server 
+        //In this method data is a JS object.
+        //ESAPI JavaScript encoder breaks JavaScript objects
+        //var clean_data = $ESAPI.encoder().encodeForJavaScript( data );
+        var clean_data = data;
         var action = "";
         if (nick != ""){
-            addMessage("> "+data["message"]);
+            addMessage("> "+clean_data["message"]);
         }
-        clients = data["list"];
+        clients = clean_data["list"];
         updateBuddyList(clients);
     });
     socket.on('disconnect', function(){

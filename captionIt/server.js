@@ -5,11 +5,10 @@ var certificate = fs.readFileSync('./certificate.pem').toString();
 var express = require('express');
 var sio = require('socket.io');
 
-
-//var privateKey = fs.readFileSync('/usr/local/nginx/server.key').toString();
-//var certificate = fs.readFileSync('/usr/local/nginx/server.crt').toString();
-//app.listen(8000);
 var app = express.createServer({key:privateKey, cert:certificate});
+
+
+app.use("/esapi4js",express.static(__dirname + '/esapi4js'));
 
 // load client page content
 app.get('/', function (req, res){
@@ -54,7 +53,7 @@ io.sockets.on('connection', function(socket){
         // remove client from the list
         if (socket.nickname === undefined)
             return;
-        var nick = socket.nickname
+        var nick = socket.nickname;
         delete clients[nick];
         socket.broadcast.emit('companyChange',{"list":clients, "message":socket.nickname+" departs!"});
     });
